@@ -67,12 +67,12 @@ class SnipeApp(tk.Tk):
         if self.friend_to_snipe:
             current_flow = self.api.get_flow()
             friend = next((friend for friend in new_friends if friend['name'] == self.friend_to_snipe), None)
-            if friend and friend['lol']['gameStatus'] == 'inQueue' and current_flow != "Matchmaking":
+            if friend and friend['lol']['gameStatus'] == 'inQueue' and current_flow != "Matchmaking" and friend['lol']['gameQueueType'] == 'ARAM_UNRANKED_5x5':
                 if not self.api.in_aram_lobby():
                     self.api.create_aram_lobby()
                     print("Created ARAM lobby")
                 self.api.start_queue()
-            elif friend and  friend['lol']['gameStatus'] != 'inQueue' and current_flow == "Matchmaking":
+            elif friend and  friend['lol']['gameStatus'] != 'inQueue' and current_flow == "Matchmaking" :
                 self.api.stop_queue()
                 self.api.quit_lobby()
                 print("Stopped queue")
