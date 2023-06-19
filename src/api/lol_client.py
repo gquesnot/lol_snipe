@@ -1,4 +1,6 @@
 import os
+import random
+import string
 import subprocess
 from base64 import b64encode
 from time import sleep
@@ -146,13 +148,35 @@ class ClientApi:
         r = self.session.request(*ClientApiEndpoints.LOBBY_CREATE_LOBBY, data={"queueId": queue_id})
         return r.json()
 
-    def stop_queue(self):
-       self.session.request(*ClientApiEndpoints.LOBBY_STOP_SEARCH)
+    def create_custom_lobby(self, map_id, team_size: int = 5, is_practice_tool=False):
+        lobby_name = random.choice(string.ascii_lowercase) + str(random.randint(0, 1000))
+        print(f"Creating lobby {lobby_name}")
+        data = {
+            "customGameLobby": {
+                "configuration": {
+                    "gameMode": "PRACTICETOOL" if is_practice_tool else "CLASSIC",
+                    "gameMutator": "",
+                    "gameServerRegion": "",
+                    "mapId": map_id,
+                    "mutators": {
+                        "id": 1
+                    },
+                    "spectatorPolicy": "AllAllowed",
+                    "teamSize": team_size
+                },
+                "lobbyName": lobby_name,
+                "lobbyPassword": None,
+            },
+            "isCustom": True
+        }
+        r = self.session.request(*ClientApiEndpoints.LOBBY_CREATE_LOBBY, data=data)
+        return r.json()
 
+    def stop_queue(self):
+        self.session.request(*ClientApiEndpoints.LOBBY_STOP_SEARCH)
 
     def quit_lobby(self):
         self.session.request(*ClientApiEndpoints.LOBBY_QUIT_LOBBY)
-
 
     def get_lobby_status(self):
         r = self.session.request(*ClientApiEndpoints.LOBBY_GET_LOBBY)
@@ -163,8 +187,6 @@ class ClientApi:
 
     def start_queue(self):
         self.session.request(*ClientApiEndpoints.LOBBY_SEARCH)
-
-
 
     def in_aram_lobby(self):
         try:
